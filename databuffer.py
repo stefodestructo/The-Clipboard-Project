@@ -19,5 +19,5 @@ class databuffer:
         present_time = datetime.now()
         self.buf = [x for x in self.buf if present_time - x[0] < self.max_time_delta]
 
-        return [(self._timedelta_total_seconds(present_time - x[0]) / self._timedelta_total_seconds(self.max_time_delta), x[1]) \
+        return [(1 - self._timedelta_total_seconds(present_time - x[0]) / self._timedelta_total_seconds(self.max_time_delta), x[1]) \
                 for x in self.buf]
