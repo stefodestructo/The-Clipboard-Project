@@ -13,6 +13,7 @@ from databuffer import databuffer
 class FeederThread(threading.Thread):
     running = True
     addPoint = None
+    _buffer = ''
  
     def __init__(self, serial_device):
         threading.Thread.__init__(self)
@@ -20,8 +21,20 @@ class FeederThread(threading.Thread):
         self.running = True
         self.addPoint = None
 
+    def read_last_line(self):
+        self._buffer = self._buffer + self.s.read(self.s.inWaiting())
+
+        if '\n' in self._buffer:
+            lines = self._buffer.split('\n')
+            last_line = lines[-2]
+            self._buffer = lines[-1]
+            print last_line
+            return last_line
+        else: return None
+
     def getReading(self):
-        x = self.s.readline()
+        x = self.read_last_line()
+        #x = self.s.readline()
         try:
             return int(x) 
         except ValueError:
@@ -29,15 +42,21 @@ class FeederThread(threading.Thread):
             print x
             return self.getReading()
 
+        except TypeError:
+            return None 
+
     def run(self):
         self.s = serial.Serial(self.serial_device, 9600, timeout=0.1)
-        self.s.readline()
+        #self.s.readline()
     
         while self.running:
             k = self.getReading() 
       
             if self.addPoint and k != None:
                 self.addPoint(int(k))
+
+            elif k == None:
+                print "None"
 
 class Plotter:
     bgcolor = (255,255,255)
@@ -149,7 +168,7 @@ class Plotter:
             self.data = [(x * self.width, y) \
                     for x, y in self.buf.get_buffer()]
             # set up axes
-            print 'Number of points: ', len(self.data)
+            #print 'Number of points: ', len(self.data)
             self.calculateVerticalScale()
 
             
