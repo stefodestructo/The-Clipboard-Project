@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "usart.h"
 
-#define FOSC 8000000
+#define FOSC 16000000
 #define BAUD 9600
 #define MYUBRR FOSC/16/BAUD-1
 //#define DDR_DEBUG 
@@ -30,10 +30,10 @@ void init_timer(void)
 
    TCCR0B = (1 << CS00) | (1 << CS02);	//WGM = 0, prescaler at 8
 
-   TIMSK |= (1 << TOIE0);	//Set bit 1 in TIMSK to enable Timer0 overflow interrupt.
+   TIMSK0 |= (1 << TOIE0);	//Set bit 1 in TIMSK to enable Timer0 overflow interrupt.
 
 
-   TIMSK|=(1<<TOIE0);
+   TIMSK0|=(1<<TOIE0);
 
    //Initialize Counter
    TCNT0=0;
@@ -43,13 +43,14 @@ void init_timer(void)
 void init_counter(void)
 {
      // set Pin 7 (PD3) as the pin to be used to monitor the sensor
-     PCMSK |= (1 << PIND2);
+     // PCMSK |= (1 << PIND2);
 
      // interrupt on INT1 pin rising edge (sensor triggered)
-     MCUCR = (1 << ISC01) | (1 << ISC00);
+     EICRA = (1 << ISC01) | (1 << ISC00);
+     //MCUCR = (1 << ISC01) | (1 << ISC00);
 
      // turn on interrupts
-     GIMSK |= (1 << INT0);
+     EIMSK |= (1 << INT0);
 }
 
 void main(void)

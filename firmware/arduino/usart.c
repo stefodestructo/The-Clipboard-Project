@@ -2,31 +2,31 @@
 #include <avr/io.h>
 #include "usart.h"
 
-#define FOSC 8000000
+#define FOSC 16000000
 #define BAUD 9600
 #define MYUBRR FOSC/16/BAUD-1
 
 void usart_init( unsigned int ubrr)
 {
     /* Set baud rate */
-    UBRRH = (unsigned char) (ubrr >> 8);    
-    UBRRL = (unsigned char) ubrr;    
+    UBRR0H = (unsigned char) (ubrr >> 8);    
+    UBRR0L = (unsigned char) ubrr;    
 
     /* Enable reciever and transmitter */
-    UCSRB = (1 << RXEN) | (1 << TXEN);
+    UCSR0B = (1 << RXEN0) | (1 << TXEN0);
 
     /* 8 data bits, 1 stop bit */
-    UCSRC = (1 << UCSZ1) | (1 << UCSZ0);
+    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 }
 
 void usart_putchar(uint8_t c)
 {
-     while ( !(UCSRA & (1<<UDRE) ) );
-     UDR = c;
+     while ( !(UCSR0A & (1<<UDRE0) ) );
+     UDR0 = c;
 }
 
 unsigned char usart_getchar(void)
 {
-     while ( !(UCSRA & (1<<RXC) ) );
-     return UDR;
+     while ( !(UCSR0A & (1<<RXC0) ) );
+     return UDR0;
 }
